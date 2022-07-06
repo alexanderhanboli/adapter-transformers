@@ -10,6 +10,7 @@ from .context import AdapterSetup, ForwardContext
 from .layer import AdapterLayerBase
 from .modeling import Activation_Function_Class
 
+import pdb
 
 class PrefixTuning(nn.Module, ModuleUtilsMixin):
     def __init__(
@@ -298,9 +299,14 @@ class PrefixTuningShim(AdapterLayerBase, nn.Module):
                     prefix_keys, prefix_values = context.prefix_states[prefix_tuning_name][self.location_key][
                         prefix_id
                     ]
-
-                    key_states = torch.cat([prefix_keys, key_states], dim=2)
-                    value_states = torch.cat([prefix_values, value_states], dim=2)
+                    
+                    try:
+                        key_states = torch.cat([prefix_keys, key_states], dim=2)
+                        value_states = torch.cat([prefix_values, value_states], dim=2)
+                    except:
+                        pdb.set_trace()
+                        print(prefix_keys.shape)
+                        print(key_states.shape)
                     if attention_mask is not None:
                         if attention_mask.dim() == 2:
                             prefix_mask = torch.ones(batch_size, prefix_keys.size(2)).to(attention_mask.device)
