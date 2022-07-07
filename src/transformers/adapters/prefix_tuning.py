@@ -10,7 +10,6 @@ from .context import AdapterSetup, ForwardContext
 from .layer import AdapterLayerBase
 from .modeling import Activation_Function_Class
 
-import pdb
 
 class PrefixTuning(nn.Module, ModuleUtilsMixin):
     def __init__(
@@ -169,7 +168,7 @@ class PrefixTuningPool(nn.Module):
             module_configs[location_key] = {
                 "n_layers": count,
                 "n_heads": self.config.num_attention_heads,
-                "input_size": self.config.hidden_size,
+                "input_size": self.config.num_attention_heads * self.config.d_kv,  # the input_size is set to be n_heads * d_kv instead of hidden_size. This is because for models like T5-3B, the hidden_size is not the same as n_heads * d_kv. For most Transformer models like T5-base or T5-large, since hidden_size = n_heads * d_kv, setting input_size = num_attention_heads * d_kv is equivalent to setting input_size = hidden_size.
             }
         prefix_tuning = PrefixTuningGroup(module_configs, prefix_tuning_config)
         prefix_tuning.train(self.training)  # make sure training mode is consistent
@@ -299,14 +298,10 @@ class PrefixTuningShim(AdapterLayerBase, nn.Module):
                     prefix_keys, prefix_values = context.prefix_states[prefix_tuning_name][self.location_key][
                         prefix_id
                     ]
-                    
-                    try:
-                        key_states = torch.cat([prefix_keys, key_states], dim=2)
-                        value_states = torch.cat([prefix_values, value_states], dim=2)
-                    except:
-                        pdb.set_trace()
-                        print(prefix_keys.shape)
-                        print(key_states.shape)
+
+                    key_states = torch.cat([prefix_keys, key_states], dim=2)
+                    value_states = torch.cat([prefix_values, value_states], dim=2)
+
                     if attention_mask is not None:
                         if attention_mask.dim() == 2:
                             prefix_mask = torch.ones(batch_size, prefix_keys.size(2)).to(attention_mask.device)
