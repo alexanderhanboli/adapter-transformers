@@ -141,6 +141,8 @@ class PrefixTuningPool(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
+        if "d_kv" not in self.config.to_dict():
+            self.config.d_kv = self.config.hidden_size // self.config.num_attention_heads
         self.prefix_counts = {}
         self.prefix_tunings = nn.ModuleDict()
 
