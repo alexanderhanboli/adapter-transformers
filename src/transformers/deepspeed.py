@@ -372,7 +372,7 @@ def deepspeed_reinit(trainer):
     """
     import deepspeed
 
-    deepspeed.init_distributed(time_out=datetime.timedelta(seconds=4 * 1800))
+    deepspeed.init_distributed(timeout=datetime.timedelta(seconds=4 * 1800))
     deepspeed_engine, optimizer, _, lr_scheduler = deepspeed.initialize(**trainer.deepspeed_initialize_kwargs)
     return deepspeed_engine, optimizer, lr_scheduler
 
@@ -431,7 +431,7 @@ def deepspeed_init(trainer, num_training_steps, resume_from_checkpoint=None, inf
         lr_scheduler=lr_scheduler,
     )
 
-    deepspeed.init_distributed(time_out=datetime.timedelta(seconds=4 * 1800))
+    deepspeed.init_distributed(timeout=datetime.timedelta(seconds=4 * 1800))
     deepspeed_engine, optimizer, _, lr_scheduler = deepspeed.initialize(**kwargs)
 
     # stash kwargs to enabled a later deepspeed_reinit
