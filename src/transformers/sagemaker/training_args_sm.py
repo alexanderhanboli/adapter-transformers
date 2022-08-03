@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import importlib.util
 import json
 import os
@@ -92,7 +93,7 @@ class SageMakerTrainingArguments(TrainingArguments):
         elif is_sagemaker_dp_enabled():
             import smdistributed.dataparallel.torch.torch_smddp  # noqa: F401
 
-            torch.distributed.init_process_group(backend="smddp")
+            torch.distributed.init_process_group(backend="smddp", timeout=datetime.timedelta(seconds=4 * 1800))
             self.local_rank = int(os.getenv("SMDATAPARALLEL_LOCAL_RANK"))
             device = torch.device("cuda", self.local_rank)
             self._n_gpu = 1

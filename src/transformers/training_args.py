@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import contextlib
+import datetime
 import json
 import math
 import os
@@ -1164,7 +1165,7 @@ class TrainingArguments:
             # Here, we'll use torch.distributed.
             # Initializes the distributed backend which will take care of synchronizing nodes/GPUs
             if not torch.distributed.is_initialized():
-                torch.distributed.init_process_group(backend="nccl")
+                torch.distributed.init_process_group(backend="nccl", timeout=datetime.timedelta(seconds=4 * 1800))
             device = torch.device("cuda", self.local_rank)
             self._n_gpu = 1
 
