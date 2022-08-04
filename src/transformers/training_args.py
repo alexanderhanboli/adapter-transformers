@@ -1120,7 +1120,7 @@ class TrainingArguments:
                         "CPU distributed training backend is not properly set. "
                         "Please set '--xpu_backend' to either 'mpi' or 'ccl'."
                     )
-                torch.distributed.init_process_group(backend=self.xpu_backend)
+                torch.distributed.init_process_group(backend=self.xpu_backend, timeout=datetime.timedelta(seconds=4 * 1800))
         elif is_torch_tpu_available():
             device = xm.xla_device()
             self._n_gpu = 0
